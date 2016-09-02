@@ -32,3 +32,8 @@ services:
       - ZOOKEEPERS=zoo-1
     depends_on:
       - zookeeper
+
+  opentsdb:
+    image: petergrace/opentsdb-docker
+    ports:
+      - "4242:4242"
