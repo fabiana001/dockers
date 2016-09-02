@@ -1,0 +1,34 @@
+version: '2'
+
+services:
+  zookeeper:
+    build: ./zookeeper/
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+    environment:
+      - MYID=1
+
+  kafka:
+    build: ./kafka/
+    ports:
+      - "9092:9092"
+      - "7203:7203"
+    links:
+     - zookeeper:zoo-1
+    environment:
+      - ID=0
+      - NAME=127.0.0.1
+      - ZOOKEEPERS=zoo-1:2181
+
+  trifecta:
+    image: chatu/trifecta
+    ports:
+      - "8888:8888"
+    links:
+     - zookeeper:zoo-1
+    environment:
+      - ZOOKEEPERS=zoo-1
+    depends_on:
+      - zookeeper
