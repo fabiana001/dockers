@@ -30,6 +30,7 @@ services:
       - ZOOKEEPERS=zk:2181
     depends_on:
       - zk
+      - kafka
 
   #opentsdb:
   #  image: petergrace/opentsdb-docker

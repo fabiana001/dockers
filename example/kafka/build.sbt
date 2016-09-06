@@ -1,6 +1,6 @@
 lazy val commons = Seq(
   organization := "it.cgnal",
-  name := "restApiOpenTSDB",
+  name := "kafka",
   version := "1.0.0",
   scalaVersion := "2.11.8",
   scalacOptions ++= Seq("-target:jvm-1.8", "-feature"),
