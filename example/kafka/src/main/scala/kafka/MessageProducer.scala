@@ -1,16 +1,20 @@
 package kafka
 
+import java.io.StringWriter
 import java.security.Timestamp
 
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import java.util.Properties
 
-import org.apache.avro.generic.GenericData
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+
 /**
   * Created by cgnal on 02/09/16.
   */
 object MessageProducer {
-
+case class Message(name: String, time: Long, value: Int)
   //val log = LogManager.getLogger(MessageProducer.getClass)
 
 
@@ -22,25 +26,25 @@ object MessageProducer {
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
 
     val producer = new KafkaProducer[String, String](props)
+    val mapper = new ObjectMapper()
+    mapper.registerModule(DefaultScalaModule)
 
-    val string =
-      """{
-        |"type" : "test",
-        |"time" : 1,
-        |"k": 0
-        |}""".stripMargin
     val startTime = System.currentTimeMillis
 
     for (i <-0 to 100) {
+      val message = Message("test", System.currentTimeMillis(), i)
 
+      val out = new StringWriter
+       mapper.writeValue(out, message)
+       val json = out.toString
       // send lots of messages
-      producer.send(new ProducerRecord[String, String]("pluto", "", string))
+      producer.send(new ProducerRecord[String, String]("pluto", "", json))
 
       // every so often send to a different topic
       if (i % 5 == 0) {
-        producer.send(new ProducerRecord[String, String]("pippo", "", string))
+        producer.send(new ProducerRecord[String, String]("pippo", "", json))
         producer.flush()
-        System.out.println("Sent msg number " + i)
+        System.out.println(s"Sent msg number $i value ")
       }
     }
 
