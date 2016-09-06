@@ -1,39 +1,37 @@
 version: '2'
-
 services:
-  zookeeper:
-    build: ./zookeeper/
+  zk:
+    image: rawmind/alpine-zk:3.4.8-16
     ports:
       - "2181:2181"
       - "2888:2888"
       - "3888:3888"
-    environment:
-      - MYID=1
 
   kafka:
-    build: ./kafka/
+    image: rawmind/alpine-kafka:0.9.0.1-2
     ports:
       - "9092:9092"
       - "7203:7203"
     links:
-     - zookeeper:zoo-1
+      - zk
     environment:
-      - ID=0
-      - NAME=127.0.0.1
-      - ZOOKEEPERS=zoo-1:2181
+      - KAFKA_DELETE_TOPICS=true
+      - KAFKA_ZK_HOST=zk
+      - KAFKA_EXT_IP=kafka
 
   trifecta:
     image: chatu/trifecta
     ports:
       - "8888:8888"
     links:
-     - zookeeper:zoo-1
+     - zk:zk
+     - kafka:kafka
     environment:
-      - ZOOKEEPERS=zoo-1
+      - ZOOKEEPERS=zk:2181
     depends_on:
-      - zookeeper
+      - zk
 
-  opentsdb:
-    image: petergrace/opentsdb-docker
-    ports:
-      - "4242:4242"
+  #opentsdb:
+  #  image: petergrace/opentsdb-docker
+  #  ports:
+  #    - "4242:4242"
